@@ -46,8 +46,6 @@
  */
 #define CONFIGURATION_ADV_H_VERSION 010100
 
-#include "Conditionals.h"
-
 // @section temperature
 
 //===========================================================================
@@ -115,8 +113,8 @@
 #if ENABLED(PIDTEMP)
   // this adds an experimental additional term to the heating power, proportional to the extrusion speed.
   // if Kc is chosen well, the additional required power due to increased melting should be compensated.
-  #define PID_ADD_EXTRUSION_RATE
-  #if ENABLED(PID_ADD_EXTRUSION_RATE)
+  //#define PID_EXTRUSION_SCALING
+  #if ENABLED(PID_EXTRUSION_SCALING)
     #define DEFAULT_Kc (100) //heating power=Kc*(e_speed)
     #define LPQ_MAX_LEN 50
   #endif
@@ -561,10 +559,13 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
-// Set Transfer-Buffer-Size by uncommenting the next define. Default size is 32byte.
-// :[0,2,4,8,16,32,64,128,256]. To save 386byte of PROGMEM and (3 + TX_BUFFER_SIZE) bytes of RAM set TX_BUFFER_SIZE to 0
-// To buffer a simple "ok" you need 4 byte, for ADVANCED_OK/M105 you need 32 and for debug-echo: 128 byte to get the optimal speed.
-// Any other output does not need to be that speedy.
+// Transfer Buffer Size
+// To save 386 bytes of PROGMEM (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
+// To buffer a simple "ok" you need 4 bytes.
+// For ADVANCED_OK (M105) you need 32 bytes.
+// For debug-echo: 128 bytes for the optimal speed.
+// Other output doesn't need to be that speedy.
+// :[0,2,4,8,16,32,64,128,256]
 #define TX_BUFFER_SIZE 0
 
 // Enable an emergency-command parser to intercept certain commands as they
@@ -797,7 +798,4 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 
 //#define EXPERIMENTAL_I2CBUS
 
-#include "Conditionals.h"
-#include "SanityCheck.h"
-
-#endif //CONFIGURATION_ADV_H
+#endif // CONFIGURATION_ADV_H

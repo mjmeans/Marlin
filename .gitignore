@@ -77,6 +77,10 @@ applet/
 *.out
 *.app
 
+#
+# PlatformIO
+#
+.pioenvs
 
 #
 # C
