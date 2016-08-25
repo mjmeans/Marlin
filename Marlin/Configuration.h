@@ -417,27 +417,32 @@
   // NOTE NB all values for DELTA_* values MUST be floating point, so always have a decimal point in them
 
   // Center-to-center distance of the holes in the diagonal push rods.
-  #define DELTA_DIAGONAL_ROD 288.0 // mm
+  #define DELTA_DIAGONAL_ROD 288.0 // mm (kossel_frame_calc.xls says it should be 350.5, mk_visual_calc says it should be 296.887)
 
   // Horizontal offset from middle of printer to smooth rod center.
   // The circumradius (R) of an equliateral triangle with side length (a) = 1/3 * SQRT(3) * a
   // Example Kossel Mini with 15mm extrusions and 360mm side rails
-  //    the measured distance from center to center of 15mm extrusion is 383mm.
-  //    therefore the circumradius is 1/3 * SRQT(3) * 383 = 221.12505
+  //    the measured distance from center to center of 15mm extrusion is 383mm (kossel_frame_calc.xls says it should be 282.5).
+  //    therefore the circumradius is 1/3 * SRQT(3) * 383 = 221.12505 (kossel_frame_calc.xls says it should be 220.837).
   #define DELTA_SMOOTH_ROD_OFFSET 221.12505 // mm
 
   // Horizontal offset of the universal joints on the end effector.
-  #define DELTA_EFFECTOR_OFFSET 19.9 // mm
+  #define DELTA_EFFECTOR_OFFSET 20.0 // mm (kossel_frame_calc.xls says it should be 20.0)
 
   // Horizontal offset of the universal joints on the carriages.
-  #define DELTA_CARRIAGE_OFFSET 27.5 // mm
+  #define DELTA_CARRIAGE_OFFSET 27.4 // mm (kossel_frame_calc.xls says it should be 27.0)
 
   // Horizontal distance bridged by diagonal push rods when effector is centered.
   #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-(DELTA_EFFECTOR_OFFSET)-(DELTA_CARRIAGE_OFFSET))
 
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
-  #define DELTA_PRINTABLE_RADIUS 100.0
-
+  // MJM: Actual printable radius is 110.0 using 288mm rods and 221.12505 offset.
+  //      Even though we have a 240mm diameter bed, we cannot reach  Y-1115 because the Z tower reaches full extension at X0 Y114.2.
+  //      To get good torque, the diagonal rods should never be lower than 20 degrees which with these rods would be a radius of 97.5.
+  //      A better rod length would have been be 297mm instead of 288mm.
+  //      But we need this value set very high in order to allow z probe deployment
+  #define DELTA_PRINTABLE_RADIUS 135.0
+  
   // Delta calibration menu
   // uncomment to add three points calibration menu option.
   // See http://minow.blogspot.com/index.html#4918805519571907051
@@ -538,8 +543,8 @@
 //    O-- FRONT --+
 //  (0,0)
 #define X_PROBE_OFFSET_FROM_EXTRUDER 0     // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER -10   // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -3.5  // Z offset: -below +above  [the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER 20   // Y offset: -front +behind [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -3  // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 4000
@@ -552,7 +557,7 @@
 
 // Allen key retractable z-probe as seen on many Kossel delta printers - http://reprap.org/wiki/Kossel#Automatic_bed_leveling_probe
 // Deploys by touching z-axis belt. Retracts by pushing the probe down. Uses Z_MIN_PIN.
-//#define Z_PROBE_ALLEN_KEY
+#define Z_PROBE_ALLEN_KEY
 
 #if ENABLED(Z_PROBE_ALLEN_KEY)
   // 2 or 3 sets of coordinates for deploying and retracting the spring loaded touch probe on G29,
@@ -561,12 +566,12 @@
   // Kossel Mini
   #define Z_PROBE_ALLEN_KEY_DEPLOY_1_X 30.0
   #define Z_PROBE_ALLEN_KEY_DEPLOY_1_Y DELTA_PRINTABLE_RADIUS
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z 100.0
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z 135.0
   #define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE XY_PROBE_SPEED
 
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_X 0.0
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_X 5.0
   #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y DELTA_PRINTABLE_RADIUS
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z 100.0
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z 135.0
   #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (XY_PROBE_SPEED/10)
 
   #define Z_PROBE_ALLEN_KEY_DEPLOY_3_X Z_PROBE_ALLEN_KEY_DEPLOY_2_X * 0.75
@@ -576,8 +581,8 @@
 
   #define Z_PROBE_ALLEN_KEY_STOW_DEPTH 20
   // Move the probe into position
-  #define Z_PROBE_ALLEN_KEY_STOW_1_X -64.0
-  #define Z_PROBE_ALLEN_KEY_STOW_1_Y 56.0
+  #define Z_PROBE_ALLEN_KEY_STOW_1_X 0.0
+  #define Z_PROBE_ALLEN_KEY_STOW_1_Y 117.0
   #define Z_PROBE_ALLEN_KEY_STOW_1_Z 23.0
   #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE XY_PROBE_SPEED
   // Move the nozzle down further to push the probe into retracted position.
@@ -649,7 +654,7 @@
 // Probe Raise options provide clearance for the probe to deploy, stow, and travel.
 //
 #define Z_PROBE_DEPLOY_HEIGHT 50 // Raise to make room for the probe to deploy / stow
-#define Z_PROBE_TRAVEL_HEIGHT 5  // Raise between probing points.
+#define Z_PROBE_TRAVEL_HEIGHT 8  // Raise between probing points.
 
 //
 // For M851 give a range for adjusting the Z probe offset
@@ -758,7 +763,7 @@
 
 // @section bedlevel
 
-//#define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
+#define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
 
 // Enable this feature to get detailed logging of G28, G29, M48, etc.
 // Logging is off by default. Enable this logging feature with 'M111 S32'.
@@ -785,7 +790,7 @@
   #if ENABLED(AUTO_BED_LEVELING_GRID)
 
     // Set the rectangle in which to probe
-    #define DELTA_PROBEABLE_RADIUS (DELTA_PRINTABLE_RADIUS - 10)
+    #define DELTA_PROBEABLE_RADIUS (DELTA_PRINTABLE_RADIUS - 40)
     #define LEFT_PROBE_BED_POSITION -(DELTA_PROBEABLE_RADIUS)
     #define RIGHT_PROBE_BED_POSITION DELTA_PROBEABLE_RADIUS
     #define FRONT_PROBE_BED_POSITION -(DELTA_PROBEABLE_RADIUS)
